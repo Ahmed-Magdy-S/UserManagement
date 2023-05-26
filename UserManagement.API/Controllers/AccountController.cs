@@ -16,26 +16,22 @@ namespace UserManagement.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
-        private readonly SignInManager<AppUser> _signInManager;
         private readonly IJwtService _jwtService;
         private readonly ILogger<AccountController> _logger;
         /// <summary>
         /// controller constructor along with injected depenedencies
         /// </summary>
         /// <param name="accountService"></param>
-        /// <param name="signInManager"></param>
         /// <param name="jwtService"></param>
         /// <param name="logger"></param>
 
         public AccountController(
             IAccountService accountService,
-            SignInManager<AppUser> signInManager,
             IJwtService jwtService,
             ILogger<AccountController> logger
             )
         {
             _accountService = accountService;
-            _signInManager = signInManager;
             _jwtService = jwtService;
             _logger = logger;
         }
@@ -66,8 +62,9 @@ namespace UserManagement.API.Controllers
 
                 if (result.Succeeded)
                 {
-                    await _signInManager.SignInAsync(user, true);
                     var authenticationResponse = _jwtService.CreateJwtToken(user);
+
+                    HttpContext.Response.Cookies.Append("jwt", authenticationResponse.Token);
 
                     _logger.LogInformation("A new user has been registred with username: {username}", authenticationResponse.Username);
                     return Ok(authenticationResponse);
@@ -98,35 +95,23 @@ namespace UserManagement.API.Controllers
             {
                 string errorMessage = string.Join(" | ", ModelState.Values.SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage));
-                return Problem(errorMessage, statusCode: 400);
+                return BadRequest(errorMessage);
             }
 
-            var result = await _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, true, false);
+            var user = await _accountService.FindUserByUserNameAsync(loginDto.UserName);
+            if (user == null) return BadRequest("Invalid username/password");
 
-            if (result.Succeeded)
-            {
-                var user = await _accountService.FindUserByUserNameAsync(loginDto.UserName);
-                if (user == null) return NoContent();
-                var authenticationResponse = _jwtService.CreateJwtToken(user);
+            var isValidPassword = await _accountService.CheckUserPassword(user,loginDto.Password);
+            if (!isValidPassword) return BadRequest("Invalid username/password");
 
-                _logger.LogInformation("the user {name} has been logged in", authenticationResponse.Username);
-                return Ok(authenticationResponse);
-            }
+            var authenticationResponse = _jwtService.CreateJwtToken(user);
 
-            return Problem("Invalid email/password", statusCode: 400);
-        }
+            HttpContext.Response.Cookies.Append("jwt", authenticationResponse.Token);
 
-        /// <summary>
-        /// User Logout
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [Authorize]
-        public async Task<ActionResult<AppUser>> Logout()
-        {
-            await _signInManager.SignOutAsync();
+            _logger.LogInformation("the user {name} has been logged in", authenticationResponse.Username);
+           
+            return Ok(authenticationResponse);
 
-            return Ok();
         }
 
         /// <summary>
@@ -157,7 +142,7 @@ namespace UserManagement.API.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("The user: {name} has changed their password", user.UserName);
-                    return Accepted("Password has changed successfullu");
+                    return Accepted("Password has changed successfully");
                 }
 
                 else
@@ -171,14 +156,35 @@ namespace UserManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get User Profile (Not Implemented Yet)
+        /// Get User Profile
         /// </summary>
+        /// <param name="profileRequestDto"></param>
         /// <returns></returns>
-        [HttpGet]
-        public IActionResult Profile()
+        [HttpPost]
+        public async Task<IActionResult> Profile(ProfileRequestDto profileRequestDto)
         {
-            return Problem("Not implemented yet");
-        }
+            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
 
+            if (authHeader != null && authHeader.StartsWith("Bearer "))
+            {
+                var token = authHeader["Bearer ".Length..];
+                var tokenHandler = new JwtSecurityTokenHandler();
+
+                var jwt = tokenHandler.ReadJwtToken(token);
+
+                var userId = jwt.Subject;
+
+                var user = await _accountService.FindUserByIdAsync(userId);
+
+                if (user == null) return NotFound("User not found");
+
+                var profile = await _accountService.GetUserProfile(userId, profileRequestDto.Password);
+                _logger.LogInformation("The user: {name} has accessed their profile", user.UserName);
+                return Ok(profile);
+            }
+
+            return Problem("Invalid/expired token");
+
+        }
     }
 }

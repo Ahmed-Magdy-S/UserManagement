@@ -13,6 +13,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="src\components\" />
+    <Folder Include="src\contexts\" />
+    <Folder Include="src\hooks\" />
+    <Folder Include="src\utils\" />
     <Folder Include="src\screens\" />
   </ItemGroup>
 </Project>

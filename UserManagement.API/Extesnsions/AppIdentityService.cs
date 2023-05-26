@@ -16,15 +16,22 @@ namespace UserManagement.API.Extesnsions
         /// <param name="services"></param>
         public static void AddAppIdentityService(this IServiceCollection services)
         {
-            services.AddIdentity<AppUser, AppRole>(options =>
+            services.AddIdentityCore<AppUser>(options =>
             {
                 options.Password.RequiredLength = 8;
                 options.Password.RequireUppercase = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireDigit = true;
                 options.User.RequireUniqueEmail = false;
-            }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+            }).AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
+            
 
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.SecurePolicy = CookieSecurePolicy.None;
+            });
+                
             //put it here as it considered to be use only with identity
             services.AddScoped<IPasswordHasher<AppUser>, Sha512PasswordHasher>();
         }

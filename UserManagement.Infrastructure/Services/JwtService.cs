@@ -22,9 +22,7 @@ namespace UserManagement.Infrastructure.Services
         {
             var jwtToken = new JwtSecurityToken
          (
-             _configuration["Issure"],
-             _configuration["Jwt:Audience"],
-             CreateClaims(appUser),
+             claims: CreateClaims(appUser),
              expires: GetExpirationTime(),
              signingCredentials: GetSigningCredentials()
          );
@@ -44,7 +42,7 @@ namespace UserManagement.Infrastructure.Services
         private DateTime GetExpirationTime()
         {
             var expirationMinutes = Convert.ToDouble(_configuration["Jwt:Expiration_Minutes"]);
-            return DateTime.UtcNow.AddMinutes(expirationMinutes);
+            return DateTime.Now.AddMinutes(expirationMinutes);
         }
 
         private List<Claim> CreateClaims(AppUser appUser)
@@ -53,7 +51,7 @@ namespace UserManagement.Infrastructure.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, appUser.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iss,DateTime.UtcNow.ToString()),
+                new Claim(JwtRegisteredClaimNames.Iss,DateTime.Now.ToString()),
                 new Claim(JwtRegisteredClaimNames.Exp, GetExpirationTime().ToString())
             };
             return claims;

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace UserManagement.Core.IdentityEntities
 {
-    public class AppUser : IdentityUser<Guid>
+    public class AppUser : IdentityUser
     {
         public required string FirstName { get; set; }
 

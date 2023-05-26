@@ -21,10 +21,6 @@ builder.Services.AddControllers(options => {
     options.Filters.Add(new AuthorizeFilter(policy));
 }).AddXmlSerializerFormatters();
 
-builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddAppIdentityService();
-builder.Services.AddTransient<IJwtService, JwtService>();
-builder.Services.AddConfiguredAuthentication(builder.Configuration);
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -33,10 +29,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 builder.Services.AddConfiguredSwagger();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddAppIdentityService();
+builder.Services.AddTransient<IJwtService, JwtService>();
+builder.Services.AddConfiguredAuthentication(builder.Configuration);
+builder.Services.AddAuthorization();
+
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policyBuilder =>
+    options.AddPolicy("defaultPolicy",policyBuilder =>
     {
         policyBuilder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
     });
@@ -55,7 +57,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-app.UseCors();
+app.UseCors("defaultPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();

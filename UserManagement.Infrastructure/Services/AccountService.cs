@@ -16,6 +16,11 @@ namespace UserManagement.Infrastructure.Services
             _userManager = userManager;
         }
 
+        public async Task<bool> CheckUserPassword(AppUser user,string password)
+        {
+           return await _userManager.CheckPasswordAsync(user,password);
+        }
+
         public AppUser CreateIdentityUser(RegisterDto registerDto)
         {
             AppUser user = new()

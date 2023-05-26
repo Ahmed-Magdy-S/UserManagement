@@ -20,18 +20,19 @@ namespace UserManagement.API.Extesnsions
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
+            })
+                .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateAudience = true,
-                    ValidAudience = config["Jwt:Audience"],
-                    ValidateIssuer = true,
-                    ValidIssuer = config["Jwt:Issure"],
+                    ValidateAudience = false,
+                    ValidateIssuer = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"] ?? "wrong")),
                 };
+
+                
             });
         }
     }

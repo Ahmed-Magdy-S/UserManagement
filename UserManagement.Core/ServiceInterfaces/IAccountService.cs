@@ -8,6 +8,7 @@ namespace UserManagement.Core.ServiceInterfaces
     {
         AppUser CreateIdentityUser(RegisterDto registerDto);
         Task<IdentityResult> InsertIntoDbAsync(AppUser user, string password);
+        Task<bool> CheckUserPassword(AppUser user, string password);
         Task<bool> IsUserNameExist(string username);
         Task<AppUser?> FindUserByUserNameAsync(string userName);
         Task<AppUser?> FindUserByIdAsync(string userId);

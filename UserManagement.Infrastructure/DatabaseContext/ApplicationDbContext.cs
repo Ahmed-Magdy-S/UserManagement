@@ -4,7 +4,7 @@ using UserManagement.Core.IdentityEntities;
 
 namespace UserManagement.Infrastructure.DatabaseContext
 {
-    public class ApplicationDbContext : IdentityDbContext<AppUser, AppRole,Guid>
+    public class ApplicationDbContext : IdentityDbContext<AppUser>
     {
         public ApplicationDbContext(DbContextOptions options) : base(options) { }
     }
