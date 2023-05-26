@@ -121,6 +121,7 @@ namespace UserManagement.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<AppUser>> Logout()
         {
             await _signInManager.SignOutAsync();
@@ -134,6 +135,7 @@ namespace UserManagement.API.Controllers
         /// <param name="resetPasswordDto"></param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> ResetPassword(ResetPasswordDto resetPasswordDto)
         {
             var authHeader = Request.Headers["Authorization"].FirstOrDefault();
