@@ -14,6 +14,6 @@ namespace UserManagement.Core.ServiceInterfaces
         Task<AppUser?> FindUserByIdAsync(string userId);
         Task<ProfileDto?> GetUserProfile(string userId, string password);
         Task<IdentityResult> ResetUserPassword(AppUser appUser, ResetPasswordDto resetPasswordDto);
-        Task<IdentityResult> UpdateUserAccount(AppUser appUser, string password, ProfileDto profileDto);
+        Task<IdentityResult> UpdateUserProfile(AppUser appUser, ProfileUpdateDto profileUpdateDto);
     }
 }

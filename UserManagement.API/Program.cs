@@ -14,6 +14,9 @@ Log.Logger = new LoggerConfiguration().WriteTo.File("Log/log.txt").MinimumLevel.
 
 builder.Host.UseSerilog();
 
+
+builder.Services.AddConfiguredAuthentication(builder.Configuration);
+
 builder.Services.AddControllers(options => {
     options.Filters.Add(new ProducesAttribute("application/json"));
     options.Filters.Add(new ConsumesAttribute("application/json"));
@@ -32,7 +35,6 @@ builder.Services.AddConfiguredSwagger();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddAppIdentityService();
 builder.Services.AddTransient<IJwtService, JwtService>();
-builder.Services.AddConfiguredAuthentication(builder.Configuration);
 builder.Services.AddAuthorization();
 
 

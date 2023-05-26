@@ -42,7 +42,7 @@ namespace UserManagement.Infrastructure.Services
         private DateTime GetExpirationTime()
         {
             var expirationMinutes = Convert.ToDouble(_configuration["Jwt:Expiration_Minutes"]);
-            return DateTime.Now.AddMinutes(expirationMinutes);
+            return DateTime.UtcNow.AddMinutes(expirationMinutes);
         }
 
         private List<Claim> CreateClaims(AppUser appUser)
@@ -51,7 +51,7 @@ namespace UserManagement.Infrastructure.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, appUser.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iss,DateTime.Now.ToString()),
+                new Claim(JwtRegisteredClaimNames.Iss,DateTime.UtcNow.ToString()),
                 new Claim(JwtRegisteredClaimNames.Exp, GetExpirationTime().ToString())
             };
             return claims;

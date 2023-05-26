@@ -161,6 +161,7 @@ namespace UserManagement.API.Controllers
         /// <param name="profileRequestDto"></param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Profile(ProfileRequestDto profileRequestDto)
         {
             var authHeader = Request.Headers["Authorization"].FirstOrDefault();
@@ -184,6 +185,48 @@ namespace UserManagement.API.Controllers
             }
 
             return Problem("Invalid/expired token");
+        }
+
+        /// <summary>
+        /// Update User Profile
+        /// </summary>
+        /// <param name="profileUpdateDto"></param>
+        /// <returns></returns>
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> Profile(ProfileUpdateDto profileUpdateDto)
+        {
+            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+
+            if (authHeader != null && authHeader.StartsWith("Bearer "))
+            {
+                var token = authHeader["Bearer ".Length..];
+                var tokenHandler = new JwtSecurityTokenHandler();
+
+                var jwt = tokenHandler.ReadJwtToken(token);
+
+                var userId = jwt.Subject;
+
+                var user = await _accountService.FindUserByIdAsync(userId);
+
+                if (user == null) return NotFound("User not found");
+
+                var result = await _accountService.UpdateUserProfile(user, profileUpdateDto);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("The profile has been updated with username: {username}", user.UserName);
+                    return Ok("Profile updated successfully");
+                }
+
+                else
+                {
+                    string errorMessage = string.Join(" | ", result.Errors.Select(e => e.Description));
+                    return Problem(errorMessage, statusCode: 400);
+                }
+            }
+            return Problem("Invalid/expired token");
+
 
         }
     }

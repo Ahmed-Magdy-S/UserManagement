@@ -81,14 +81,14 @@ namespace UserManagement.Infrastructure.Services
             return _userManager.ChangePasswordAsync(appUser,resetPasswordDto.OldPassword,resetPasswordDto.NewPassword);
         }
 
-        public async Task<IdentityResult> UpdateUserAccount(AppUser appUser,string password,ProfileDto profileDto)
+        public async Task<IdentityResult> UpdateUserProfile(AppUser appUser,ProfileUpdateDto profileUpdateDto)
         {
-            appUser.FirstName = profileDto.FirstName;
-            appUser.FatherName = profileDto.FatherName;
-            appUser.FamilyName = profileDto.FamilyName;
-            appUser.UserName = profileDto.UserName;
-            appUser.Address = AesEncryption.Encrypt(profileDto.Address, password);
-            appUser.Birthdate = AesEncryption.Encrypt(profileDto.Birthdate, password);
+            appUser.FirstName = profileUpdateDto.FirstName;
+            appUser.FatherName = profileUpdateDto.FatherName;
+            appUser.FamilyName = profileUpdateDto.FamilyName;
+            appUser.UserName = profileUpdateDto.UserName;
+            appUser.Address = AesEncryption.Encrypt(profileUpdateDto.Address, profileUpdateDto.Password);
+            appUser.Birthdate = AesEncryption.Encrypt(profileUpdateDto.Birthdate, profileUpdateDto.Password);
 
             return await _userManager.UpdateAsync(appUser);
 
