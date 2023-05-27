@@ -64,8 +64,6 @@ namespace UserManagement.API.Controllers
                 {
                     var authenticationResponse = _jwtService.CreateJwtToken(user);
 
-                    HttpContext.Response.Cookies.Append("jwt", authenticationResponse.Token);
-
                     _logger.LogInformation("A new user has been registred with username: {username}", authenticationResponse.Username);
                     return Ok(authenticationResponse);
                 }
@@ -105,8 +103,6 @@ namespace UserManagement.API.Controllers
             if (!isValidPassword) return BadRequest("Invalid username/password");
 
             var authenticationResponse = _jwtService.CreateJwtToken(user);
-
-            HttpContext.Response.Cookies.Append("jwt", authenticationResponse.Token);
 
             _logger.LogInformation("the user {name} has been logged in", authenticationResponse.Username);
            

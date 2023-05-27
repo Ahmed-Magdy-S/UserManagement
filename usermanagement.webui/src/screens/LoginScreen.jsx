@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { FormContainer } from '../components/FormContainer';
@@ -12,9 +12,15 @@ const LoginScreen = () => {
     const userName = useFormInput("");
     const password = useFormInput("");
     const navigate = useNavigate();
-    const { login } = useAuthContext();
     const { state } = useLocation()
+    const { login,authenticated } = useAuthContext();
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (authenticated) {
+            navigate(state?.path || "/");
+        }
+    }, [authenticated, navigate,state?.path]);
 
     const loginHandler = async (e) => {
 

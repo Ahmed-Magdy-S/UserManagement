@@ -1,11 +1,29 @@
-import { useState, createContext, useContext } from "react";
+import { useState, createContext, useContext, useEffect } from "react";
+import { tokenHandler } from "../utils/tokenHandler";
 
 const AuthContext = createContext();
 
 const BASE_URL = "https://localhost:7163/api/account";
 
 function AuthProvider({ children }) {
+
+    const [token, setToken] = useState(tokenHandler.getToken("jwt"));
     const [authenticated, setAuthenticated] = useState(false);
+    const [username, setUsername] = useState(null);
+
+    useEffect(() => {
+        setToken(tokenHandler.getToken("jwt"))
+        console.log(token)
+        if (!token || token.trim().length === 0) {
+            setAuthenticated(false);
+            setUsername(null)
+        }
+        else {
+            setAuthenticated(true);
+            setUsername(localStorage.getItem("user"))
+        }
+
+    }, [token])
 
     const register = async (registerDto) => {
 
@@ -25,7 +43,12 @@ function AuthProvider({ children }) {
 
             const data = await response.json();
             console.log('User registered successfully:', data);
-            setAuthenticated(true);
+            tokenHandler.setToken("jwt", data.token, data.expiration)
+            setToken(data.token);
+            setUsername(data.username)
+            localStorage.setItem("user", data.username);
+
+
         } catch (error) {
             console.error('Error registering user:', error.message);
             throw error;
@@ -49,8 +72,10 @@ function AuthProvider({ children }) {
             }
 
             const data = await response.json();
-            setAuthenticated(true);
-
+            tokenHandler.setToken("jwt", data.token, data.expiration)
+            setToken(data.token);
+            setUsername(data.username)
+            localStorage.setItem("user", data.username);
             console.log('User logged in successfully:', data);
         } catch (error) {
             console.error('Error login:', error.message);
@@ -59,12 +84,17 @@ function AuthProvider({ children }) {
     }
 
     const logout = () => {
-      
+        tokenHandler.deleteToken("jwt");
+        setToken("");
+        localStorage.removeItem("user");
+        setUsername(null)
+
     }
+
 
     
 
-    const contextValue = { authenticated, register, login, logout };
+    const contextValue = { authenticated, register, login, logout, token, username };
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 

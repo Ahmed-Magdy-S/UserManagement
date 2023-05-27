@@ -1,4 +1,4 @@
-import { Container, Card, Button } from 'react-bootstrap';
+import { Container, Card } from 'react-bootstrap';
 
 const MainSection = () => {
     return (
@@ -11,14 +11,6 @@ const MainSection = () => {
                         Phasellus tincidunt tellus a enim euismod, vitae lobortis diam
                         pulvinar. Nulla in ex sed dui pulvinar eleifend nec sit amet tellus. Nam accumsan molestie diam vel dignissim. Proin non interdum urna. Praesent ut mauris luctus, laoreet nulla ac, aliquam diam. Suspendisse orci diam, varius in fringilla et, auctor eu tortor. Morbi semper facilisis arcu, sit amet venenatis odio elementum in. Quisque placerat purus in purus pulvinar lacinia. Sed vulputate eget tortor in pellentesque.
                     </p>
-                    <div className='d-flex'>
-                        <Button variant='primary' href='/login' className='me-3'>
-                            Sign In
-                        </Button>
-                        <Button variant='secondary' href='/register'>
-                            Register
-                        </Button>
-                    </div>
                 </Card>
             </Container>
         </div>

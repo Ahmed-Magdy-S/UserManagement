@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { FormContainer } from '../components/FormContainer';
 import { FormInput } from '../components/FormInput';
@@ -10,7 +10,9 @@ import { toast } from 'react-toastify';
 
 const RegisterScreen = () => {
     const [loading, setLoading] = useState(false);
-    const { register} = useAuthContext();
+    const navigate = useNavigate();
+    const { state } = useLocation()
+    const { register, authenticated } = useAuthContext();
     const firstname = useFormInput("");
     const fathername = useFormInput("");
     const familyname = useFormInput("");
@@ -18,6 +20,13 @@ const RegisterScreen = () => {
     const birthdate = useFormInput("");
     const userName = useFormInput("");
     const password = useFormInput("");
+
+    useEffect(() => {
+        if (authenticated) {
+            navigate(state?.path || "/");
+        }
+
+    }, [authenticated, navigate, state?.path]);
 
     const submitHandler = async (e) => {
         e.preventDefault();
@@ -33,7 +42,9 @@ const RegisterScreen = () => {
         try {
             setLoading(true)
             await register(registerDto)
+            navigate('/');
             toast.success("User registerd successfully");
+
         }
         catch (err) {
             toast.error(err.message);
